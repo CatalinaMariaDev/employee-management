@@ -1,21 +1,20 @@
 <!-- left_menu_component.html -->
 <div th:fragment="navBar" xmlns:th="http://www.thymeleaf.org">
     <style>
-        /* Stilizare pentru navigation bar */
         .navbar {
             overflow: hidden;
             background-color: #f8f9fa;
             color: black;
             font-family: Arial, sans-serif;
             display: flex;
-            align-items: center; /* Aliniem elementele pe verticală */
-            justify-content: space-between; /* Spațiu egal între elemente */
-            padding: 0 20px; /* Ajustăm spațiul de pe margini */
+            align-items: center;
+            justify-content: space-between;
+            padding: 0 20px;
         }
 
         .navbar .avatar {
             margin-right: 10px;
-            border-radius: 50%; /* Rotunjim marginile pentru a crea un aspect de avatar circular */
+            border-radius: 50%;
         }
 
         .navbar .username {
@@ -41,18 +40,7 @@
             background-color: #555;
         }
     </style>
-    <script>
-        // Funcția pentru afișarea / ascunderea meniului responsiv
-        function toggleNavbar() {
-            var x = document.getElementById("navbar");
-            if (x.className === "navbar") {
-                x.className += " responsive";
-            } else {
-                x.className = "navbar";
-            }
-        }
-    </script>
-    <!-- Navigația -->
+
     <div class="navbar" id="navbar">
         <div>
             <svg xmlns="http://www.w3.org/2000/svg" width="48" height="48" id="avatar"><path d="M24 8c-4.42 0-8 3.58-8 8 0 4.41 3.58 8 8 8s8-3.59 8-8c0-4.42-3.58-8-8-8zm0 20c-5.33 0-16 2.67-16 8v4h32v-4c0-5.33-10.67-8-16-8z"></path><path fill="none" d="M0 0h48v48H0z"></path></svg>
@@ -61,11 +49,6 @@
         <div class="right">
             <a href="#" class="nav-item">About</a>
             <a href="#" class="nav-item">Logout</a>
-            <a href="javascript:void(0);" class="hamburger" onclick="toggleNavbar()">
-                <div class="hamburger-icon"></div>
-                <div class="hamburger-icon"></div>
-                <div class="hamburger-icon"></div>
-            </a>
         </div>
     </div>
 </div>

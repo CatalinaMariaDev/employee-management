@@ -1,7 +1,8 @@
 package com.catalina.employeemanagement.entity;
 
-import javax.persistence.*;
-
+import jakarta.persistence.*;
+import jakarta.persistence.Entity;
+import jakarta.persistence.Table;
 import lombok.*;
 
 @Entity
@@ -15,10 +16,19 @@ public class User {
     private Long id;
 
     @Column(nullable = false)
-    private String nume;
+    private String username;
+
+    @Column(nullable = false)
+    private String password;
 
     @Enumerated(EnumType.STRING)
     @Column(nullable = false)
-    private Role rol;
+    private Role role;
+
+    public User(String username, String password, Role role) {
+        this.username = username;
+        this.password = password;
+        this.role = role;
+    }
 }
 
