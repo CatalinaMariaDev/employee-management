@@ -1,0 +1,53 @@
+<!-- left_menu_component.html -->
+<div th:fragment="leftMenu" xmlns:th="http://www.w3.org/1999/xhtml">
+  <style>
+    .left-menu {
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 250px;
+        height: 100%;
+        background-color: #f8f9fa;
+        padding-top: 60px;
+        display: flex; /* Utilizăm Flexbox */
+        flex-direction: column; /* Așezăm elementele în coloană */
+        align-items: center; /* Aliniem elementele pe orizontală */
+        z-index: 1000;
+    }
+
+    .menu-item {
+        padding: 10px;
+        text-decoration: none;
+        color: #333;
+        display: block;
+        width: 100%; /* Asigurăm ca elementele să aibă lățimea maximă */
+        text-align: center; /* Aliniem textul în centru */
+    }
+
+    .menu-item:hover {
+        background-color: #ddd;
+    }
+
+    @media (max-width: 1065px) {
+        .left-menu {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: auto;
+            background-color: #f8f9fa;
+            padding-top: 60px;
+            transition: top 0.3s ease;
+            z-index: 1000;
+        }
+    }
+  </style>
+
+  <div class="left-menu">
+    <a href="#" class="menu-item">Cerere concediu</a>
+    <a href="#" class="menu-item">Aprobare concediu</a>
+    <a href="#" class="menu-item">History</a>
+    <a href="#" class="menu-item">Users</a>
+
+  </div>
+</div>
