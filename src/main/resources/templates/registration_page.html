@@ -14,29 +14,10 @@
                     <h2 class="text-center">Registration</h2>
                 </div>
                 <div class="card-body">
-                    <form action="/register" method="post">
-                        <div class="form-group">
-                            <label for="username">Username:</label>
-                            <input type="text" class="form-control" id="username" name="username" required>
-                            <div class="invalid-feedback">
-                                Please enter a username.
-                            </div>
-                        </div>
-                        <div class="form-group">
-                            <label for="password">Password:</label>
-                            <input type="password" class="form-control" id="password" name="password" required>
-                            <div class="invalid-feedback">
-                                Please enter a password.
-                            </div>
-                        </div>
-                        <div class="form-group">
-                            <label for="email">Email:</label>
-                            <input type="email" class="form-control" id="email" name="email" required>
-                            <div class="invalid-feedback">
-                                Please enter a valid email.
-                            </div>
-                        </div>
-                        <button type="submit" class="btn btn-primary btn-block">Register</button>
+                    <form th:action="@{/registration}" method="post" th:object="${user}">
+                        <input name="username" type="text" placeholder="Username">
+                        <input name="password" type="password" placeholder="Password">
+                        <input type="submit" value="Register">
                     </form>
                 </div>
                 <div class="card-footer text-center">

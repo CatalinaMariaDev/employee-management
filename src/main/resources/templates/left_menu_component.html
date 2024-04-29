@@ -1,4 +1,6 @@
-<div th:fragment="leftMenu" xmlns:th="http://www.w3.org/1999/xhtml">
+<
+<div th:fragment="leftMenu" xmlns:th="http://www.thymeleaf.org"
+     xmlns:sec="http://www.thymeleaf.org/thymeleaf-extras-springsecurity5">
   <style>
     .left-menu {
         position: fixed;
@@ -44,9 +46,11 @@
 
   <div class="left-menu">
     <a href="#" class="menu-item">Cerere concediu</a>
-    <a href="#" class="menu-item">Aprobare concediu</a>
+    <div sec:authorize="hasRole('ROLE_MANAGER')">
+      This content is only shown to administrators.
+    </div>
     <a href="#" class="menu-item">History</a>
     <a href="#" class="menu-item">Users</a>
-
   </div>
+
 </div>
