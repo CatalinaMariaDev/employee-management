@@ -6,9 +6,10 @@
     <!-- Integrează Bootstrap -->
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css">
     <style>
-        .container{
-        max-width: 540px;
+        .container {
+            max-width: 540px;
         }
+
         .navbar {
             position: fixed;
             top: 0;
@@ -28,16 +29,14 @@
             z-index: 999;
         }
 
-     .container-custom {
-    margin-left: auto;
-    margin-right: auto;
-    max-width: 540px;
-    padding-top: 70px;
-    padding-left: 20px;
-    text-align: center;
-}
-
-
+        .container-custom {
+            margin-left: auto;
+            margin-right: auto;
+            max-width: 540px;
+            padding-top: 70px;
+            padding-left: 20px;
+            text-align: center;
+        }
 
         input[type="date"] {
             width: calc(100% - 20px);
@@ -49,8 +48,9 @@
 
         @media (max-width: 1065px) {
             .container-custom {
-            margin-top:300px;
+                margin-top: 300px;
             }
+
             .left-menu {
                 position: fixed;
                 top: 0;
@@ -74,19 +74,83 @@
 
 <div class="container container-custom">
     <h1 class="mt-5">Cerere de Concediu</h1>
-    <form action="#" th:action="@{/submit_leave_request}" method="post">
+    <form th:action="@{/submit}" method="post" enctype="multipart/form-data">
+        <div class="form-group">
+            <label for="tipConcediu">Tip concediu:</label>
+            <select id="tipConcediu" name="tipConcediu" class="form-control" required>
+                <option value="">Alegeți tipul de concediu</option>
+                <option th:each="type : ${types}" th:value="${type}" th:text="${type}">Type</option>
+            </select>
+        </div>
         <div class="form-group">
             <label for="startDate">Data de început:</label>
-            <input type="date" id="startDate" name="startDate" class="form-control form-control-smaller" required>
+            <input type="date" id="startDate" name="dataInceput" class="form-control" required>
         </div>
         <div class="form-group">
             <label for="endDate">Data de sfârșit:</label>
-            <input type="date" id="endDate" name="endDate" class="form-control form-control-smaller" required>
+            <input type="date" id="endDate" name="dataSfarsit" class="form-control" required>
         </div>
-        <br>
+        <div class="form-group">
+            <label for="comment">Comentariu:</label>
+            <textarea id="comment" name="comentarii" class="form-control" rows="3"></textarea>
+        </div>
+        <div class="form-group">
+            <label for="file">Încarcă fișier:</label>
+            <input type="file" id="file" name="file" class="form-control">
+        </div>
         <button type="submit" class="btn btn-dark">Trimite Cerere</button>
     </form>
 </div>
 <div th:replace="footer_component :: footer" class="footer"></div>
+<script>
+    // Funcția care se activează atunci când utilizatorul trage și plasează un fișier
+    function handleFileDrop(event) {
+        event.preventDefault();
+        var file = event.dataTransfer.files[0]; // Obține primul fișier tras și plasat
+        // Aici poți gestiona fișierul, de exemplu îl poți încărca într-un element ascuns sau poți afișa detalii despre fișier
+        var fileDropZone = document.getElementById('fileDropZone');
+        fileDropZone.innerText = 'Fișier selectat: ' + file.name; // Actualizează textul cu numele fișierului
+        console.log('Fișierul tras și plasat:', file);
+    }
+
+    // Atașează funcția de handleFileDrop la evenimentul de trascinare și plasare
+    document.addEventListener('DOMContentLoaded', function() {
+        var dropZone = document.getElementById('fileDropZone');
+        dropZone.addEventListener('dragover', function(event) {
+            event.preventDefault();
+        });
+        dropZone.addEventListener('drop', handleFileDrop);
+    });
+
+    document.addEventListener('DOMContentLoaded', function() {
+    var dropZone = document.getElementById('fileDropZone');
+    var tipConcediu = document.getElementById('tipConcediu');
+
+    // Funcția pentru gestionarea fișierelor trase și plasate
+    function handleFileDrop(event) {
+        event.preventDefault();
+        var file = event.dataTransfer.files[0]; // Obține primul fișier tras și plasat
+        dropZone.innerText = 'Fișier selectat: ' + file.name; // Actualizează textul cu numele fișierului
+        console.log('Fișierul tras și plasat:', file);
+    }
+
+    dropZone.addEventListener('dragover', function(event) {
+        event.preventDefault();
+    });
+
+    dropZone.addEventListener('drop', handleFileDrop);
+
+    // Ascultător pentru schimbarea selecției dropdown
+    tipConcediu.addEventListener('change', function() {
+        if (tipConcediu.value === 'concediu_medical') {
+            dropZone.style.display = 'block'; // Afișează div-ul pentru drag and drop
+        } else {
+            dropZone.style.display = 'none'; // Ascunde div-ul
+        }
+    });
+});
+
+
+</script>
 </body>
 </html>

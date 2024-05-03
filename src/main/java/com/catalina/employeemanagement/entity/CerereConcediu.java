@@ -1,9 +1,9 @@
 package com.catalina.employeemanagement.entity;
 
 import jakarta.persistence.*;
-import java.util.Date;
-
 import lombok.*;
+
+import java.util.Date;
 
 @Entity
 @Table(name = "cereri_concediu")
@@ -29,6 +29,15 @@ public class CerereConcediu {
     @Column(nullable = false)
     private StatusCerere status;
 
-    // Alte atribute și metode
-}
+    @Enumerated(EnumType.STRING)
+    @Column(name = "tip_concediu", nullable = false)
+    private TipConcediu tipConcediu;
 
+    @Column(name = "comentarii")
+    private String comentarii;
+
+    @Lob
+    @Column(name = "fisier_atașat")
+    private byte[] fisierAtasat;
+    
+}

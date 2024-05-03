@@ -1,6 +1,4 @@
-<
-<div th:fragment="leftMenu" xmlns:th="http://www.thymeleaf.org"
-     xmlns:sec="http://www.thymeleaf.org/thymeleaf-extras-springsecurity5">
+<div th:fragment="leftMenu" xmlns:th="http://www.thymeleaf.org" xmlns:sec="http://www.thymeleaf.org/thymeleaf-extras-springsecurity5">
   <style>
     .left-menu {
         position: fixed;
@@ -20,13 +18,24 @@
         padding: 10px;
         text-decoration: none;
         color: #333;
-        display: block;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
         width: 100%;
-        text-align: center;
+        text-align: left;
     }
 
     .menu-item:hover {
         background-color: #ddd;
+    }
+
+    .badge {
+        background-color: #ff5733; /* Culoare de fundal */
+        color: white; /* Culoare de text */
+        border-radius: 50%;
+        padding: 5px 10px;
+        display: inline-block;
+        font-size: 14px;
     }
 
     @media (max-width: 1065px) {
@@ -46,11 +55,11 @@
 
   <div class="left-menu">
     <a href="#" class="menu-item">Cerere concediu</a>
-    <div sec:authorize="hasRole('ROLE_MANAGER')">
-      This content is only shown to administrators.
-    </div>
+    <a href="#" sec:authorize="hasRole('ROLE_MANAGER')" class="menu-item">
+      Aprobare concedii
+      <span th:if="${pendingRequestsCount > 0}" th:text="${pendingRequestsCount}" class="badge"></span>
+    </a>
     <a href="#" class="menu-item">History</a>
     <a href="#" class="menu-item">Users</a>
   </div>
-
 </div>
