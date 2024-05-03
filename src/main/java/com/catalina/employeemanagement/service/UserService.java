@@ -9,6 +9,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
+
 @Service
 public class UserService {
 
@@ -27,7 +28,7 @@ public class UserService {
     }
 
     public void register(User user) {
-        if(userRepository.findAll().size() < 1) {
+        if (userRepository.findAll().size() < 1) {
             user.setRole(Role.MANAGER);
         } else {
             user.setRole(Role.LUCRATOR);

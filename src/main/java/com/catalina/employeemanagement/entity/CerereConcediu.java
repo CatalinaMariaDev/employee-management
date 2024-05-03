@@ -7,7 +7,8 @@ import java.util.Date;
 
 @Entity
 @Table(name = "cereri_concediu")
-@Getter @Setter
+@Getter
+@Setter
 @NoArgsConstructor
 @AllArgsConstructor
 public class CerereConcediu {
@@ -39,5 +40,5 @@ public class CerereConcediu {
     @Lob
     @Column(name = "fisier_atașat")
     private byte[] fisierAtasat;
-    
+
 }
