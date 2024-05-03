@@ -8,18 +8,22 @@ import com.catalina.employeemanagement.repository.UserRepository;
 import com.catalina.employeemanagement.service.CerereConcediuService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.format.annotation.DateTimeFormat;
+import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
 import java.util.Date;
+import java.util.List;
+import java.util.Optional;
 
 @Controller
 public class LeaveController {
@@ -77,6 +81,49 @@ public class LeaveController {
         CerereConcediu savedCerere = service.submitLeaveRequest(cerere);
         return ResponseEntity.ok(savedCerere);
     }
+
+    @GetMapping("/approve_leaves")
+    public String showPendingRequests(Model model) {
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        String username = authentication.getName();
+        model.addAttribute("username", username);
+
+        // Alte variabile adăugate în model
+        List<CerereConcediu> pendingRequests = service.findPendingRequests();
+        model.addAttribute("pendingRequests", pendingRequests);
+
+        return "aprobare_concedii_page";
+    }
+
+
+    @PostMapping("/update_status")
+    public String updateLeaveRequestStatus(
+            @RequestParam("id") Long id,
+            @RequestParam("status") StatusCerere status) {
+        Optional<CerereConcediu> cerereOptional = service.findById(id);
+        if (cerereOptional.isPresent()) {
+            CerereConcediu cerere = cerereOptional.get();
+            cerere.setStatus(status);
+            service.submitLeaveRequest(cerere);
+        }
+        return "redirect:/approve_leaves";
+    }
+
+    @GetMapping("/get_comments/{id}")
+    public ResponseEntity<String> getComments(@PathVariable Long id) {
+        CerereConcediu cerere = service.findById(id).get();
+        return ResponseEntity.ok(cerere.getComentarii());
+    }
+
+    @GetMapping("/get_file/{id}")
+    public ResponseEntity<byte[]> getFile(@PathVariable Long id) {
+        CerereConcediu cerere = service.findById(id).get();
+        return ResponseEntity.ok()
+                .contentType(MediaType.IMAGE_JPEG) // Sau schimbați formatul după cum este necesar
+                .body(cerere.getFisierAtasat());
+    }
+
+
 
 
 }

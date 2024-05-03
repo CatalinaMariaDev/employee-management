@@ -54,8 +54,8 @@
   </style>
 
   <div class="left-menu">
-    <a href="#" class="menu-item">Cerere concediu</a>
-    <a href="#" sec:authorize="hasRole('ROLE_MANAGER')" class="menu-item">
+    <a href="/request_leave" class="menu-item">Cerere concediu</a>
+    <a href="/approve_leaves" sec:authorize="hasRole('ROLE_MANAGER')" class="menu-item">
       Aprobare concedii
       <span th:if="${pendingRequestsCount > 0}" th:text="${pendingRequestsCount}" class="badge"></span>
     </a>

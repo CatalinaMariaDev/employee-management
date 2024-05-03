@@ -7,6 +7,9 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.List;
+import java.util.Optional;
+
 @Service
 public class CerereConcediuService {
 
@@ -22,5 +25,19 @@ public class CerereConcediuService {
     public int countPendingRequests() {
         return repository.countByStatus(StatusCerere.IN_ASTEPTARE);
     }
+
+    public List<CerereConcediu> findPendingRequests() {
+        return repository.findByStatus(StatusCerere.IN_ASTEPTARE);
+    }
+
+    public Optional<CerereConcediu> findById(Long id) {
+        return repository.findById(id);
+    }
+
+    @Transactional
+    public CerereConcediu save(CerereConcediu cerere) {
+        return repository.save(cerere);
+    }
+
 
 }
