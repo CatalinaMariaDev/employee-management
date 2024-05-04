@@ -21,6 +21,7 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.multipart.MultipartFile;
+import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 import java.io.IOException;
 import java.util.*;
@@ -52,13 +53,41 @@ public class LeaveController {
             @RequestParam("dataSfarsit") @DateTimeFormat(pattern = "yyyy-MM-dd") Date dataSfarsit,
             @RequestParam("comentarii") String comentarii,
             @RequestParam("file") MultipartFile file,
-            Model model) {
+            RedirectAttributes redirectAttributes) {
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
         String username = authentication.getName();
         User user = userRepository.findByUsername(username);
+
+        // Validate dates
+        if (dataInceput.after(dataSfarsit)) {
+            redirectAttributes.addFlashAttribute("errorMessage", "Data de început nu poate fi mai mare decât data de sfârșit!");
+            return "redirect:/request_leave";
+        }
+
+        // Validate overlap
+        List<CerereConcediu> overlappingRequests = service.findOverlappingRequests(user, dataInceput, dataSfarsit);
+        if (!overlappingRequests.isEmpty()) {
+            redirectAttributes.addFlashAttribute("errorMessage", "Există deja o cerere de concediu în acea perioadă!");
+            return "redirect:/request_leave";
+        }
+
+        // Validate paid leave duration
+        if (tipConcediu == TipConcediu.CONCEDIU_PLATIT) {
+            int daysTaken = service.calculateTotalPaidLeaveDays(user);
+            int requestedDays = (int) ((dataSfarsit.getTime() - dataInceput.getTime()) / (1000 * 60 * 60 * 24)) + 1;
+            if (daysTaken + requestedDays > 21) {
+                redirectAttributes.addFlashAttribute("errorMessage", "Numărul maxim de zile de concediu plătit este 21!");
+                return "redirect:/request_leave";
+            }
+        }
+
+        // Validate medical leave attachment
+        if (tipConcediu == TipConcediu.CONCEDIU_MEDICAL && file.isEmpty()) {
+            redirectAttributes.addFlashAttribute("errorMessage", "Trebuie să atașați un fișier pentru concediu medical!");
+            return "redirect:/request_leave";
+        }
+
         CerereConcediu cerere = new CerereConcediu();
-        int pendingRequestsCount = service.countPendingRequests();
-        model.addAttribute("pendingRequestsCount", pendingRequestsCount);
         cerere.setUser(user);
         cerere.setTipConcediu(tipConcediu);
         cerere.setDataInceput(dataInceput);
@@ -71,14 +100,15 @@ public class LeaveController {
                 cerere.setFisierAtasat(file.getBytes());
             }
         } catch (IOException e) {
-            model.addAttribute("error", "Eroare la încărcarea fișierului!");
-            return "request_leave_page";
+            redirectAttributes.addFlashAttribute("errorMessage", "Eroare la încărcarea fișierului!");
+            return "redirect:/request_leave";
         }
 
-        CerereConcediu savedCerere = service.submitLeaveRequest(cerere);
-        model.addAttribute("success", true);
-        return "request_leave_page";
+        service.submitLeaveRequest(cerere);
+        redirectAttributes.addFlashAttribute("success", true);
+        return "redirect:/request_leave";
     }
+
 
     @GetMapping("/approve_leaves")
     public String showPendingRequests(Model model) {

@@ -2,12 +2,14 @@ package com.catalina.employeemanagement.service;
 
 import com.catalina.employeemanagement.entity.CerereConcediu;
 import com.catalina.employeemanagement.entity.StatusCerere;
+import com.catalina.employeemanagement.entity.TipConcediu;
 import com.catalina.employeemanagement.entity.User;
 import com.catalina.employeemanagement.repository.CerereConcediuRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.Date;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
@@ -22,6 +24,23 @@ public class CerereConcediuService {
     public CerereConcediu submitLeaveRequest(CerereConcediu cerere) {
         // Adaugă aici orice validări sau preprocesări necesare
         return repository.save(cerere);
+    }
+
+    public List<CerereConcediu> findOverlappingRequests(User user, Date startDate, Date endDate) {
+        return repository.findByUserUsername(user.getUsername())
+                .stream()
+                .filter(cerere -> cerere.getStatus() != StatusCerere.RESPINS &&
+                        (startDate.before(cerere.getDataSfarsit()) && endDate.after(cerere.getDataInceput())))
+                .collect(Collectors.toList());
+    }
+
+    public int calculateTotalPaidLeaveDays(User user) {
+        return repository.findByUserUsername(user.getUsername())
+                .stream()
+                .filter(cerere -> cerere.getTipConcediu() == TipConcediu.CONCEDIU_PLATIT &&
+                        cerere.getStatus() == StatusCerere.APROBAT)
+                .mapToInt(cerere -> (int) ((cerere.getDataSfarsit().getTime() - cerere.getDataInceput().getTime()) / (1000 * 60 * 60 * 24)) + 1)
+                .sum();
     }
 
     public int countPendingRequests() {
