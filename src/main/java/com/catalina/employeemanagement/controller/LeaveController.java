@@ -30,9 +30,6 @@ import java.util.*;
 @Controller
 public class LeaveController {
 
-    @Value("${leave.paid.max-days}")
-    private int maxPaidLeaveDays;
-
     @Autowired
     private CerereConcediuService service;
 
@@ -62,35 +59,6 @@ public class LeaveController {
         String username = authentication.getName();
         User user = userRepository.findByUsername(username);
 
-        // Validate dates
-        if (dataInceput.after(dataSfarsit)) {
-            redirectAttributes.addFlashAttribute("errorMessage", "Data de început nu poate fi mai mare decât data de sfârșit!");
-            return "redirect:/request_leave";
-        }
-
-        // Validate overlap
-        List<CerereConcediu> overlappingRequests = service.findOverlappingRequests(user, dataInceput, dataSfarsit);
-        if (!overlappingRequests.isEmpty()) {
-            redirectAttributes.addFlashAttribute("errorMessage", "Există deja o cerere de concediu în acea perioadă!");
-            return "redirect:/request_leave";
-        }
-
-        // Validate paid leave duration
-        if (tipConcediu == TipConcediu.CONCEDIU_PLATIT) {
-            int daysTaken = service.calculateTotalPaidLeaveDays(user);
-            int requestedDays = (int) ((dataSfarsit.getTime() - dataInceput.getTime()) / (1000 * 60 * 60 * 24)) + 1;
-            if (daysTaken + requestedDays > maxPaidLeaveDays) {
-                redirectAttributes.addFlashAttribute("errorMessage", "Numărul maxim de zile de concediu plătit este " + maxPaidLeaveDays + "!");
-                return "redirect:/request_leave";
-            }
-        }
-
-        // Validate medical leave attachment
-        if (tipConcediu == TipConcediu.CONCEDIU_MEDICAL && file.isEmpty()) {
-            redirectAttributes.addFlashAttribute("errorMessage", "Trebuie să atașați un fișier pentru concediu medical!");
-            return "redirect:/request_leave";
-        }
-
         CerereConcediu cerere = new CerereConcediu();
         cerere.setUser(user);
         cerere.setTipConcediu(tipConcediu);
@@ -100,16 +68,18 @@ public class LeaveController {
         cerere.setStatus(StatusCerere.IN_ASTEPTARE);
 
         try {
+            service.validateLeaveRequest(user, tipConcediu, dataInceput, dataSfarsit, file);
             if (!file.isEmpty()) {
                 cerere.setFisierAtasat(file.getBytes());
             }
+            service.submitLeaveRequest(cerere);
+            redirectAttributes.addFlashAttribute("success", true);
         } catch (IOException e) {
             redirectAttributes.addFlashAttribute("errorMessage", "Eroare la încărcarea fișierului!");
-            return "redirect:/request_leave";
+        } catch (IllegalArgumentException e) {
+            redirectAttributes.addFlashAttribute("errorMessage", e.getMessage());
         }
 
-        service.submitLeaveRequest(cerere);
-        redirectAttributes.addFlashAttribute("success", true);
         return "redirect:/request_leave";
     }
 
