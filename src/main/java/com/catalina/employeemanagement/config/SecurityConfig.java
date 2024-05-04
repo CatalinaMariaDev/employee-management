@@ -27,7 +27,7 @@ public class SecurityConfig {
                         .anyRequest().authenticated())
                 .formLogin(form -> form
                         .loginPage("/login")
-                        .defaultSuccessUrl("/request_leave", true)
+                        .defaultSuccessUrl("/about", true)
                         .permitAll())
                 .logout(LogoutConfigurer::permitAll)
                 .csrf(csrf -> csrf

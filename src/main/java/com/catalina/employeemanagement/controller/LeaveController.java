@@ -21,9 +21,8 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
-import java.util.Date;
-import java.util.List;
-import java.util.Optional;
+import java.util.*;
+import java.util.stream.Collectors;
 
 @Controller
 public class LeaveController {
@@ -49,12 +48,13 @@ public class LeaveController {
     }
 
     @PostMapping("/submit")
-    public ResponseEntity<CerereConcediu> submitLeaveRequest(
+    public String submitLeaveRequest(
             @RequestParam("tipConcediu") TipConcediu tipConcediu,
             @RequestParam("dataInceput") @DateTimeFormat(pattern = "yyyy-MM-dd") Date dataInceput,
             @RequestParam("dataSfarsit") @DateTimeFormat(pattern = "yyyy-MM-dd") Date dataSfarsit,
             @RequestParam("comentarii") String comentarii,
-            @RequestParam("file") MultipartFile file) {
+            @RequestParam("file") MultipartFile file,
+            Model model) {
 
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
         String username = authentication.getName();
@@ -75,11 +75,14 @@ public class LeaveController {
                 cerere.setFisierAtasat(file.getBytes());
             }
         } catch (IOException e) {
-            return ResponseEntity.internalServerError().build();
+            model.addAttribute("error", "Eroare la încărcarea fișierului!");
+            return "request_leave_page";
         }
 
         CerereConcediu savedCerere = service.submitLeaveRequest(cerere);
-        return ResponseEntity.ok(savedCerere);
+
+        model.addAttribute("success", true); // Pass success flag
+        return "request_leave_page";
     }
 
     @GetMapping("/approve_leaves")
@@ -123,5 +126,41 @@ public class LeaveController {
                 .body(cerere.getFisierAtasat());
     }
 
+    @GetMapping("/cereri_concediu")
+    public String afiseazaCereriConcediu(Model model) {
+        // Obțineți utilizatorul curent din contextul de securitate
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        String username = authentication.getName();
+        model.addAttribute("username", username);
+
+        // Căutați toate cererile de concediu ale utilizatorului curent
+        List<CerereConcediu> cereriConcediu = service.findByUserName(username);
+
+        // Adăugați lista de cereri de concediu la model
+        model.addAttribute("cereriConcediu", cereriConcediu);
+
+        return "cereri_concediu";
+    }
+
+    @GetMapping("/verifica_concedii")
+    public String showLeaveVerificationPage(Model model) {
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        String username = authentication.getName();
+        model.addAttribute("username", username);
+        model.addAttribute("usernameforsearch", "");
+        model.addAttribute("approvedLeaves", new ArrayList<>());
+        return "verifica_concedii";
+    }
+
+    @PostMapping("/search_leaves")
+    public String searchLeaves(@RequestParam("username") String username, Model model) {
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        String usernamefornavbar = authentication.getName();
+        model.addAttribute("username", usernamefornavbar);
+        List<CerereConcediu> approvedLeaves = service.findApprovedLeavesByUsername(username);
+        model.addAttribute("usernameforsearch", username);
+        model.addAttribute("approvedLeaves", approvedLeaves);
+        return "verifica_concedii";
+    }
 
 }

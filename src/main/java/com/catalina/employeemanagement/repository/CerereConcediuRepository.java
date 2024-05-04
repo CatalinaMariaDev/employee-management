@@ -10,4 +10,6 @@ public interface CerereConcediuRepository extends JpaRepository<CerereConcediu, 
     int countByStatus(StatusCerere status);
 
     List<CerereConcediu> findByStatus(StatusCerere status);
+
+    List<CerereConcediu> findByUserUsername(String userUsername);
 }

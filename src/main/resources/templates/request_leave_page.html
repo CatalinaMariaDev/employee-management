@@ -69,12 +69,16 @@
     </style>
 </head>
 <body>
+
 <div th:replace="navbar_component :: navBar" class="navbar"></div>
 <div th:replace="left_menu_component :: leftMenu" class="left-menu"></div>
 
 <div class="container container-custom">
     <h1 class="mt-5">Cerere de Concediu</h1>
-    <form th:action="@{/submit}" method="post" enctype="multipart/form-data">
+    <div th:if="${success}">
+        <div class="alert alert-success">Cererea a fost trimisă cu succes!</div>
+    </div>
+    <form th:action="@{/submit}" method="post" enctype="multipart/form-data" id="leaveForm">
         <div class="form-group">
             <label for="tipConcediu">Tip concediu:</label>
             <select id="tipConcediu" name="tipConcediu" class="form-control" required>
@@ -103,6 +107,14 @@
 </div>
 <div th:replace="footer_component :: footer" class="footer"></div>
 <script>
+    <script>
+    document.addEventListener('DOMContentLoaded', function () {
+        // Clear form fields if submission was successful
+        var success = [[${success}]];
+        if (success) {
+            document.getElementById("leaveForm").reset();
+        }
+    });
     // Funcția care se activează atunci când utilizatorul trage și plasează un fișier
     function handleFileDrop(event) {
         event.preventDefault();

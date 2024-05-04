@@ -2,6 +2,7 @@ package com.catalina.employeemanagement.service;
 
 import com.catalina.employeemanagement.entity.CerereConcediu;
 import com.catalina.employeemanagement.entity.StatusCerere;
+import com.catalina.employeemanagement.entity.User;
 import com.catalina.employeemanagement.repository.CerereConcediuRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -9,6 +10,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 @Service
 public class CerereConcediuService {
@@ -38,6 +40,19 @@ public class CerereConcediuService {
     public CerereConcediu save(CerereConcediu cerere) {
         return repository.save(cerere);
     }
+
+    public List<CerereConcediu> findByUserName(String username) {
+        return repository.findByUserUsername(username);
+    }
+
+    public List<CerereConcediu> findApprovedLeavesByUsername(String username) {
+        List<CerereConcediu> userLeaves = repository.findByUserUsername(username);
+        return userLeaves.stream()
+                .filter(cerere -> cerere != null && cerere.getStatus() == StatusCerere.APROBAT)
+                .collect(Collectors.toList());
+    }
+
+
 
 
 }
