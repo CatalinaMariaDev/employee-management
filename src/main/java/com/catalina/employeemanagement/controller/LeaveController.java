@@ -8,6 +8,7 @@ import com.catalina.employeemanagement.repository.UserRepository;
 import com.catalina.employeemanagement.service.CerereConcediuService;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
@@ -28,6 +29,9 @@ import java.util.*;
 
 @Controller
 public class LeaveController {
+
+    @Value("${leave.paid.max-days}")
+    private int maxPaidLeaveDays;
 
     @Autowired
     private CerereConcediuService service;
@@ -75,8 +79,8 @@ public class LeaveController {
         if (tipConcediu == TipConcediu.CONCEDIU_PLATIT) {
             int daysTaken = service.calculateTotalPaidLeaveDays(user);
             int requestedDays = (int) ((dataSfarsit.getTime() - dataInceput.getTime()) / (1000 * 60 * 60 * 24)) + 1;
-            if (daysTaken + requestedDays > 21) {
-                redirectAttributes.addFlashAttribute("errorMessage", "Numărul maxim de zile de concediu plătit este 21!");
+            if (daysTaken + requestedDays > maxPaidLeaveDays) {
+                redirectAttributes.addFlashAttribute("errorMessage", "Numărul maxim de zile de concediu plătit este " + maxPaidLeaveDays + "!");
                 return "redirect:/request_leave";
             }
         }
