@@ -6,8 +6,10 @@ import com.catalina.employeemanagement.entity.TipConcediu;
 import com.catalina.employeemanagement.entity.User;
 import com.catalina.employeemanagement.repository.UserRepository;
 import com.catalina.employeemanagement.service.CerereConcediuService;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.format.annotation.DateTimeFormat;
+import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
@@ -171,6 +173,31 @@ public class LeaveController {
             }
         }
         return "redirect:/cereri_concediu";
+    }
+
+    @GetMapping("/generate_report")
+    public ResponseEntity<byte[]> generateReport(@RequestParam("username") String username) {
+        // Fetch the user's approved leaves
+        List<CerereConcediu> approvedLeaves = service.findApprovedLeavesByUsername(username);
+        byte[] reportData = new byte[0];
+
+        try {
+            // Convert the list to JSON
+            ObjectMapper objectMapper = new ObjectMapper();
+            reportData = objectMapper.writeValueAsBytes(approvedLeaves);
+        } catch (Exception e) {
+            // Handle exception appropriately
+            e.printStackTrace();
+        }
+
+        // Prepare response headers
+        HttpHeaders headers = new HttpHeaders();
+        headers.setContentType(MediaType.APPLICATION_JSON);
+        headers.set(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=leaves_report.json");
+
+        return ResponseEntity.ok()
+                .headers(headers)
+                .body(reportData);
     }
 
 }

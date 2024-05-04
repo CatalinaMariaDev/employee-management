@@ -158,12 +158,24 @@
 <div th:replace="navbar_component :: navBar" class="navbar"></div>
 <div th:replace="left_menu_component :: leftMenu" class="left-menu"></div>
 <div class="container-custom container">
-    <h1>Bine ati venit</h1>
-
-        <div class="cerere-concediu">
-            <p>Aceasta aplicatie este destinata pentru a monitoriza concediile lucratorilor</p>
-            <p>Aceasta aplicatie este destinata pentru a monitoriza concediile lucratorilor</p>
+    <div class="cerere-concediu">
+        <body>
+        <div th:replace="navbar_component :: navBar" class="navbar"></div>
+        <div th:replace="left_menu_component :: leftMenu" class="left-menu"></div>
+        <div class="container-custom container">
+            <h1>Bine ați venit în aplicația noastră!</h1>
+            <p>Această aplicație este realizata de Cătălina Maria pentru proiectul de licență. Aici puteți:</p>
+            <ul>
+                <li>Faceți cereri de concediu în calitate de lucrător autorizat.</li>
+                <li>În calitate de manager, puteți accepta sau refuza cererile de concediu.</li>
+                <li>Vizualizați istoricul concediilor.</li>
+                <li>Generați rapoarte.</li>
+                <li>Vizualizați calendarul pentru a vedea disponibilitatea fiecărui lucrător.</li>
+            </ul>
         </div>
+        <div th:replace="footer_component :: footer" class="footer"></div>
+        </body>
+    </div>
 </div>
 <div th:replace="footer_component :: footer" class="footer"></div>
 </body>

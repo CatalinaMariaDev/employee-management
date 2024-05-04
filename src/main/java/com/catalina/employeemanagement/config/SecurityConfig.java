@@ -14,6 +14,7 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.config.annotation.web.configurers.LogoutConfigurer;
 import org.springframework.security.web.csrf.CookieCsrfTokenRepository;
+import org.springframework.security.web.util.matcher.AntPathRequestMatcher;
 
 @Configuration
 @EnableWebSecurity
@@ -29,12 +30,19 @@ public class SecurityConfig {
                         .loginPage("/login")
                         .defaultSuccessUrl("/about", true)
                         .permitAll())
-                .logout(LogoutConfigurer::permitAll)
+                .logout(logout -> logout
+                        .logoutUrl("/logout")
+                        .logoutSuccessUrl("/login")
+                        .invalidateHttpSession(true)
+                        .clearAuthentication(true)
+                        .permitAll()
+                        .logoutRequestMatcher(new AntPathRequestMatcher("/logout", "POST")))
                 .csrf(csrf -> csrf
                         .csrfTokenRepository(CookieCsrfTokenRepository.withHttpOnlyFalse()));
 
         return http.build();
     }
+
 
     @Bean
     public UserDetailsService userDetailsService() {
@@ -48,7 +56,6 @@ public class SecurityConfig {
         return authenticationManagerBuilder.build();
     }
 
-    // Define a NoOpPasswordEncoder bean to indicate that no password encoding is used
     @Bean
     public PasswordEncoder passwordEncoder() {
         return NoOpPasswordEncoder.getInstance();

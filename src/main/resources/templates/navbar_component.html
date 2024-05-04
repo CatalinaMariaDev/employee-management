@@ -27,6 +27,7 @@
 
         .navbar .right {
             float: right;
+            display:flex;
         }
 
         .navbar .right .nav-item {
@@ -40,19 +41,42 @@
         .navbar .right .nav-item:hover {
             background-color: #555;
         }
+
+        /* Stiluri pentru butoane */
+        .navbar .right .nav-btn {
+            background: none;
+            border: none;
+            padding: 14px 20px;
+            cursor: pointer;
+            color: black;
+            text-decoration: none;
+            transition: background-color 0.3s;
+        }
+
+        .navbar .right .nav-btn:hover {
+            background-color: #555;
+        }
+
+           .navbar .nav-btn {
+        text-decoration: none;
+    }
     </style>
 
     <div class="navbar" id="navbar">
         <div>
-            <svg xmlns="http://www.w3.org/2000/svg" width="48" height="48" id="avatar">
-                <path d="M24 8c-4.42 0-8 3.58-8 8 0 4.41 3.58 8 8 8s8-3.59 8-8c0-4.42-3.58-8-8-8zm0 20c-5.33 0-16 2.67-16 8v4h32v-4c0-5.33-10.67-8-16-8z"></path>
-                <path fill="none" d="M0 0h48v48H0z"></path>
-            </svg>
-            <span class="username" th:text="${username}"></span>
+            <a href="/about" class="nav-btn">
+                <svg xmlns="http://www.w3.org/2000/svg" width="48" height="48" id="avatar">
+                    <path d="M24 8c-4.42 0-8 3.58-8 8 0 4.41 3.58 8 8 8s8-3.59 8-8c0-4.42-3.58-8-8-8zm0 20c-5.33 0-16 2.67-16 8v4h32v-4c0-5.33-10.67-8-16-8z"></path>
+                    <path fill="none" d="M0 0h48v48H0z"></path>
+                </svg>
+                <span class="username" th:text="${username}"></span>
+            </a>
         </div>
         <div class="right">
-            <a href="/about" class="nav-item">About</a>
-            <a href="#" class="nav-item">Logout</a>
+            <a href="/about" class="nav-btn">About</a>
+            <form th:action="@{/logout}" method="post">
+                <button type="submit" class="nav-btn" sec:authorize="isAuthenticated()">Logout</button>
+            </form>
         </div>
     </div>
 </div>
