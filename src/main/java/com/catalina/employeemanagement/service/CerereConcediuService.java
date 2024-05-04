@@ -52,6 +52,10 @@ public class CerereConcediuService {
                 .collect(Collectors.toList());
     }
 
+    public void delete(CerereConcediu cerereConcediu) {
+        repository.delete(cerereConcediu);
+    }
+
 
 
 

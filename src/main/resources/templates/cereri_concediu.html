@@ -102,57 +102,6 @@
          .cerere-concediu:hover {
              box-shadow: 0 0 10px rgba(0, 0, 0, 0.3);
          }
-
-         }
-
-         .navbar {
-             position: fixed;
-             top: 0;
-             left: 0;
-             width: 100%;
-             z-index: 1000;
-         }
-
-         .left-menu {
-             margin-top: 70px;
-             position: fixed;
-             top: 60px;
-             left: 0;
-             width: 250px;
-             height: 100%;
-             background-color: #f8f9fa;
-             z-index: 999;
-         }
-
-         input[type="date"] {
-             width: calc(100% - 20px);
-             padding: 8px 10px;
-             font-size: 14px;
-             border-radius: 4px;
-             border: 1px solid #ced4da;
-         }
-
-         @media (max-width: 1065px) {
-             .container-custom {
-                 margin-top: 300px;
-             }
-
-             .left-menu {
-                 position: fixed;
-                 top: 0;
-                 left: 0;
-                 width: 100%;
-                 height: auto;
-                 background-color: #f8f9fa;
-                 z-index: 999;
-             }
-
-             .container-custom {
-                 padding-top: 60px;
-                 padding-left: 0;
-             }
-         }
-
     </style>
 </head>
 <body>
@@ -174,6 +123,15 @@
                 <img th:src="@{'data:image/png;base64,' + ${#strings.toString(cerere.fisierAtasat)}}"
                      alt="Fișier atașat">
             </div>
+            <div th:if="${cerere.status.name() == 'IN_ASTEPTARE'}">
+                <form method="post" action="/cancel_leave" th:action="@{/cancel_leave}" th:object="${cerere}">
+                    <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}" />
+                    <input type="hidden" name="id" th:value="${cerere.id}">
+                    <button type="submit">Anulează cererea</button>
+                </form>
+            </div>
+
+
         </div>
     </div>
     <div th:if="${cereriConcediu.isEmpty()}" class="empty-message">

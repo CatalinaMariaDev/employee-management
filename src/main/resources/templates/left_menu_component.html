@@ -31,8 +31,8 @@
         }
 
         .badge {
-            background-color: #ff5733; /* Culoare de fundal */
-            color: white; /* Culoare de text */
+            background-color: #ff5733;
+            color: white;
             border-radius: 50%;
             padding: 5px 10px;
             display: inline-block;
@@ -58,7 +58,7 @@
         <a href="/request_leave" class="menu-item">Cerere concediu</a>
         <a href="/approve_leaves" sec:authorize="hasRole('ROLE_MANAGER')" class="menu-item">
             Aprobare concedii
-            <span th:if="${pendingRequestsCount > 0}" th:text="${pendingRequestsCount}" class="badge"></span>
+            <span th:if="${pendingRequestsCount > 0}" th:text="${pendingRequestsCount}" class="badge" style="background-color: #ff5733;"></span>
         </a>
         <a href="/cereri_concediu" class="menu-item">Verifica starea</a>
         <a href="/verifica_concedii" class="menu-item">Verifica concedii</a>
