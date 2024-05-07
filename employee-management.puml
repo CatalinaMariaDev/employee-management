@@ -1,0 +1,87 @@
+@startuml
+
+' Definire entități
+
+class CerereConcediu {
+    Long id
+    Date dataInceput
+    Date dataSfarsit
+    StatusCerere status
+    TipConcediu tipConcediu
+    String comentarii
+    byte[] fisierAtasat
+}
+
+class User {
+    Long id
+    String username
+    String password
+    String email
+    Role role
+}
+
+enum TipConcediu {
+    ZILE_DIN_CONT
+    CONCEDIU_PLATIT
+    CONCEDIU_MEDICAL
+    CONCEDIU_PATERNITATE
+}
+
+enum StatusCerere {
+    IN_ASTEPTARE
+    APROBAT
+    RESPINS
+}
+
+enum Role {
+    LUCRATOR
+    MANAGER
+}
+
+' Definire relații
+
+CerereConcediu --> User
+
+' Definire controller-e
+
+class AboutController {
+    CerereConcediuService service
+    +String showLeaveRequestForm(Model model)
+}
+
+class LeaveController {
+    CerereConcediuService service
+    UserRepository userRepository
+    +String showLeaveRequestForm(Model model)
+    +String submitLeaveRequest(TipConcediu tipConcediu, Date dataInceput, Date dataSfarsit, String comentarii, MultipartFile file, RedirectAttributes redirectAttributes)
+    +String showPendingRequests(Model model)
+    +String updateLeaveRequestStatus(Long id, StatusCerere status)
+    +ResponseEntity<String> getComments(Long id)
+    +ResponseEntity<byte[]> getFile(Long id)
+    +String afiseazaCereriConcediu(Model model)
+    +String showLeaveVerificationPage(Model model)
+    +String searchLeaves(String username, Model model)
+    +String cancelLeaveRequest(Long id)
+    +ResponseEntity<byte[]> generateReport(String username)
+}
+
+class UserController {
+    UserService userService
+    +String getLoginPage()
+    +String getRegistrationPage(Model model)
+    +String registerUser(User user)
+}
+
+class SecurityConfig {
+    +SecurityFilterChain securityFilterChain(HttpSecurity http)
+    +UserDetailsService userDetailsService()
+    +AuthenticationManager authenticationManager(HttpSecurity http)
+    +PasswordEncoder passwordEncoder()
+}
+
+CerereConcediuService -right-> CerereConcediu
+LeaveController -down-> CerereConcediu
+LeaveController -down-> User
+UserController -down-> User
+
+@enduml

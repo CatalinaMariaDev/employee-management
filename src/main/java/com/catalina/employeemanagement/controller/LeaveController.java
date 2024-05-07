@@ -7,6 +7,13 @@ import com.catalina.employeemanagement.entity.User;
 import com.catalina.employeemanagement.repository.UserRepository;
 import com.catalina.employeemanagement.service.CerereConcediuService;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.itextpdf.io.font.constants.StandardFonts;
+import com.itextpdf.kernel.font.PdfFontFactory;
+import com.itextpdf.kernel.pdf.PdfDocument;
+import com.itextpdf.kernel.pdf.PdfWriter;
+import com.itextpdf.layout.Document;
+import com.itextpdf.layout.element.Paragraph;
+import com.itextpdf.layout.property.TextAlignment;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.format.annotation.DateTimeFormat;
@@ -24,7 +31,9 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
+import java.io.ByteArrayOutputStream;
 import java.io.IOException;
+import java.text.SimpleDateFormat;
 import java.util.*;
 
 @Controller
@@ -181,27 +190,37 @@ public class LeaveController {
 
     @GetMapping("/generate_report")
     public ResponseEntity<byte[]> generateReport(@RequestParam("username") String username) {
-        // Fetch the user's approved leaves
         List<CerereConcediu> approvedLeaves = service.findApprovedLeavesByUsername(username);
-        byte[] reportData = new byte[0];
+        ByteArrayOutputStream byteStream = new ByteArrayOutputStream();
 
-        try {
-            // Convert the list to JSON
-            ObjectMapper objectMapper = new ObjectMapper();
-            reportData = objectMapper.writeValueAsBytes(approvedLeaves);
+        try (PdfWriter writer = new PdfWriter(byteStream);
+             PdfDocument pdf = new PdfDocument(writer);
+             Document document = new Document(pdf)) {
+
+            document.setTextAlignment(TextAlignment.LEFT);
+            SimpleDateFormat sdf = new SimpleDateFormat("dd.MM.yyyy");
+            document.add(new Paragraph("Leave Report for " + username)
+                    .setFont(PdfFontFactory.createFont(StandardFonts.TIMES_BOLD))
+                    .setFontSize(14));
+
+            for (CerereConcediu leave : approvedLeaves) {
+                String period = sdf.format(leave.getDataInceput()) + " - " + sdf.format(leave.getDataSfarsit());
+                document.add(new Paragraph(period + ": " + leave.getTipConcediu().name() +
+                        (leave.getComentarii() != null ? " - Comments: " + leave.getComentarii() : "")));
+            }
+            document.close();
         } catch (Exception e) {
-            // Handle exception appropriately
             e.printStackTrace();
+            return ResponseEntity.internalServerError().build();
         }
 
-        // Prepare response headers
         HttpHeaders headers = new HttpHeaders();
-        headers.setContentType(MediaType.APPLICATION_JSON);
-        headers.set(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=leaves_report.json");
+        headers.setContentType(MediaType.APPLICATION_PDF);
+        headers.set(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=leaves_report.pdf");
 
         return ResponseEntity.ok()
                 .headers(headers)
-                .body(reportData);
+                .body(byteStream.toByteArray());
     }
 
 }
