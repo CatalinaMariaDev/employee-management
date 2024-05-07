@@ -16,6 +16,10 @@ import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
+
+/* AICI ESTE FUNCTIONALUL DELEGAT PENTRU CONTROLERUL APLICATIEI LeaveController
+IN MARE PARTE AICI SE ASCUNDE TOATA LOGICA APLICATIEI
+ */
 @Service
 public class CerereConcediuService {
 
@@ -27,11 +31,12 @@ public class CerereConcediuService {
 
     @Transactional
     public CerereConcediu submitLeaveRequest(CerereConcediu cerere) {
-        // Adaugă aici orice validări sau preprocesări necesare
+      // AICI SE SALVEAZA CEREREA DE CONCEDIU IN BAZA DE DATE
         return repository.save(cerere);
     }
 
     public int countPendingRequests() {
+        //AICI SE NUMARA REQUESTURILE IN ASTEPTARE PENTRU A NOTIFICA MANAGERUL IN MENIUL DIN DREAPTA A VIEW-ului
         return repository.countByStatus(StatusCerere.IN_ASTEPTARE);
     }
 
@@ -64,6 +69,7 @@ public class CerereConcediuService {
     }
 
     public List<CerereConcediu> findOverlappingRequests(User user, Date startDate, Date endDate) {
+        //AICI SE VALIDEAZA CERERILE DE CONCEDIU CARE SE POT SUPRAPUNE
         return repository.findByUserUsername(user.getUsername())
                 .stream()
                 .filter(cerere -> cerere.getStatus() != StatusCerere.RESPINS &&
@@ -72,6 +78,7 @@ public class CerereConcediuService {
     }
 
     public int calculateTotalPaidLeaveDays(User user) {
+        //AICI SE VALIDEAZA NUMARUL TOTAL DE ZILE PLATITE DE CONCEDIU CARE ESTE DEVINIT CA CONSTANTA IN PROPRIETATI
         return repository.findByUserUsername(user.getUsername())
                 .stream()
                 .filter(cerere -> cerere.getTipConcediu() == TipConcediu.CONCEDIU_PLATIT &&
@@ -81,6 +88,7 @@ public class CerereConcediuService {
     }
 
     public boolean validateLeaveRequest(User user, TipConcediu tipConcediu, Date dataInceput, Date dataSfarsit, MultipartFile file) {
+        //AICI AU LOC TOATE VALIDATILE CARE DUPA SA FIE AFISATE CA MESAJ USER-lui
         if (dataInceput.after(dataSfarsit)) {
             throw new IllegalArgumentException("Data de început nu poate fi mai mare decât data de sfârșit!");
         }

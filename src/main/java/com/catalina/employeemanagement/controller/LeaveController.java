@@ -36,6 +36,10 @@ import java.io.IOException;
 import java.text.SimpleDateFormat;
 import java.util.*;
 
+
+/* AICI NOI DEFINIM ENDPOINTURILE PENTRU FUNCTIONALUL APLICATIEI NOASTRE
+FIECARE ENDPOINT RETURNEAZA UN STRING ACESTA FIIND FILENAME-UL TEMPLATURILOR HTML PE CARE THYMELEAF LE CITESTE
+ */
 @Controller
 public class LeaveController {
 

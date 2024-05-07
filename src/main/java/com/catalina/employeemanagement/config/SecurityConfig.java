@@ -24,11 +24,11 @@ public class SecurityConfig {
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
         http.authorizeHttpRequests(request -> request
-                        .requestMatchers("/", "/styles/*", "/registration", "/login").permitAll()
+                        .requestMatchers("/", "/styles/*", "/registration", "/login").permitAll() // AICI SETAM AUTORIZAREA
                         .anyRequest().authenticated())
                 .formLogin(form -> form
                         .loginPage("/login")
-                        .defaultSuccessUrl("/about", true)
+                        .defaultSuccessUrl("/about", true) // ODATA CE NE_AM LOGAT NE REDERICITONEAZA PE PAGINA ABOUT
                         .permitAll())
                 .logout(logout -> logout
                         .logoutUrl("/logout")
@@ -36,7 +36,7 @@ public class SecurityConfig {
                         .invalidateHttpSession(true)
                         .clearAuthentication(true)
                         .permitAll()
-                        .logoutRequestMatcher(new AntPathRequestMatcher("/logout", "POST")))
+                        .logoutRequestMatcher(new AntPathRequestMatcher("/logout", "POST"))) // AICI SE FACE LOGOUT POST REQUEST SI SE REDERICTIONEAZA PE PAGINA DE LOGIN
                 .csrf(csrf -> csrf
                         .csrfTokenRepository(CookieCsrfTokenRepository.withHttpOnlyFalse()));
 
