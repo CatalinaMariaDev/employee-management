@@ -119,7 +119,6 @@
             <p>Tip concediu: <span th:text="${cerere.tipConcediu}"></span></p>
             <p>Comentarii: <span th:text="${cerere.comentarii}"></span></p>
             <div th:if="${cerere.tipConcediu == 'concediu_medical'}">
-                <!-- Afișează imaginea atașată, dacă este cazul -->
                 <img th:src="@{'data:image/png;base64,' + ${#strings.toString(cerere.fisierAtasat)}}"
                      alt="Fișier atașat">
             </div>

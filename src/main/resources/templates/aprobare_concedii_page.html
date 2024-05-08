@@ -142,6 +142,7 @@
 <div th:replace="footer_component :: footer" class="footer"></div>
 
 <script>
+    // Aici este script pentru difinirea popupului unde sa vezi comentarii in aprobare concedii
     function showCommentsPopup(id) {
      console.log("Fetching comments for ID: ", id);
      fetch(`/get_comments/${id}`)
@@ -161,7 +162,7 @@
          });
  }
 
-
+// Aici se face popup care deschide imaginea din cerere
      function showFilePopup(id) {
          fetch(`/get_file/${id}`)
              .then(response => response.blob())
