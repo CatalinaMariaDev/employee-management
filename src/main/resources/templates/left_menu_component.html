@@ -55,7 +55,7 @@
     </style>
 
     <div class="left-menu">
-        <a href="/request_leave" class="menu-item">Leave request</a>
+        <a href="/request_leave" sec:authorize="hasRole('ROLE_LUCRATOR')" class="menu-item">Leave request</a>
         <a href="/approve_leaves" sec:authorize="hasRole('ROLE_MANAGER')" class="menu-item">
             Approve requests
             <span th:if="${pendingRequestsCount > 0}" th:text="${pendingRequestsCount}" class="badge" style="background-color: #ff5733;"></span>
