@@ -6,12 +6,12 @@ import lombok.*;
 import java.util.Date;
 
 @Entity
-@Table(name = "cereri_concediu")
+@Table(name = "requests_leave")
 @Getter
 @Setter
 @NoArgsConstructor
 @AllArgsConstructor
-public class CerereConcediu {
+public class LeaveRequest {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
@@ -28,11 +28,11 @@ public class CerereConcediu {
 
     @Enumerated(EnumType.STRING)
     @Column(nullable = false)
-    private StatusCerere status;
+    private RequestStatus status;
 
     @Enumerated(EnumType.STRING)
     @Column(name = "tip_concediu", nullable = false)
-    private TipConcediu tipConcediu;
+    private RequestType tipConcediu;
 
     @Column(name = "comentarii")
     private String comentarii;

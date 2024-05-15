@@ -1,6 +1,6 @@
 package com.catalina.employeemanagement.controller;
 
-import com.catalina.employeemanagement.service.CerereConcediuService;
+import com.catalina.employeemanagement.service.LeaveRequestService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
@@ -11,7 +11,7 @@ import org.springframework.web.bind.annotation.GetMapping;
 @Controller
 public class AboutController {
     @Autowired
-    CerereConcediuService service;
+    LeaveRequestService service;
     @GetMapping("/about")
     public String showLeaveRequestForm(Model model) {
         int pendingRequestsCount = service.countPendingRequests();

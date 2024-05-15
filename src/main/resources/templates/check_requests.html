@@ -157,11 +157,11 @@
 <div th:replace="navbar_component :: navBar" class="navbar"></div>
 <div th:replace="left_menu_component :: leftMenu" class="left-menu"></div>
 <div class="container-custom container">
-    <h2>Verifica concedii</h2>
+    <h2>Check requests</h2>
 
     <!-- Search Form -->
     <form th:action="@{/search_leaves}" method="post">
-        <label for="username">Username:</label>
+        <label for="username">Email:</label>
         <input type="text" id="username" name="username" th:value="${usernameforsearch}" required>
         <button type="submit" class="btn btn-primary">Search</button>
     </form>

@@ -16,7 +16,11 @@
                 <div class="card-body">
                     <form th:action="@{/registration}" method="post" th:object="${user}">
                         <input name="username" type="text" placeholder="Username">
+                        <br>
+                        <input name="email" type="text" placeholder="email">
+                        <br>
                         <input name="password" type="password" placeholder="Password">
+                        <br>
                         <input type="submit" value="Register">
                     </form>
                 </div>

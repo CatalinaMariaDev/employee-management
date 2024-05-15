@@ -23,7 +23,6 @@ public class UserService {
         user.setRole(Role.MANAGER);
         user.setUsername("admin");
         user.setPassword("abc");
-        user.setEmail("test");
         //userRepository.save(user);
     }
 
@@ -33,7 +32,6 @@ public class UserService {
         } else {
             user.setRole(Role.LUCRATOR);
         }
-        user.setEmail("test");
         user.setPassword(user.getPassword());
         userRepository.save(user);
     }

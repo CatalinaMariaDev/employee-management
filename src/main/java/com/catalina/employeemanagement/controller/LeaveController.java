@@ -1,12 +1,11 @@
 package com.catalina.employeemanagement.controller;
 
-import com.catalina.employeemanagement.entity.CerereConcediu;
-import com.catalina.employeemanagement.entity.StatusCerere;
-import com.catalina.employeemanagement.entity.TipConcediu;
+import com.catalina.employeemanagement.entity.LeaveRequest;
+import com.catalina.employeemanagement.entity.RequestStatus;
+import com.catalina.employeemanagement.entity.RequestType;
 import com.catalina.employeemanagement.entity.User;
 import com.catalina.employeemanagement.repository.UserRepository;
-import com.catalina.employeemanagement.service.CerereConcediuService;
-import com.fasterxml.jackson.databind.ObjectMapper;
+import com.catalina.employeemanagement.service.LeaveRequestService;
 import com.itextpdf.io.font.constants.StandardFonts;
 import com.itextpdf.kernel.font.PdfFontFactory;
 import com.itextpdf.kernel.pdf.PdfDocument;
@@ -15,7 +14,6 @@ import com.itextpdf.layout.Document;
 import com.itextpdf.layout.element.Paragraph;
 import com.itextpdf.layout.property.TextAlignment;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
@@ -44,7 +42,7 @@ FIECARE ENDPOINT RETURNEAZA UN STRING ACESTA FIIND FILENAME-UL TEMPLATURILOR HTM
 public class LeaveController {
 
     @Autowired
-    private CerereConcediuService service;
+    private LeaveRequestService service;
 
     @Autowired
     private UserRepository userRepository;
@@ -56,39 +54,39 @@ public class LeaveController {
         int pendingRequestsCount = service.countPendingRequests();
         model.addAttribute("pendingRequestsCount", pendingRequestsCount);
         model.addAttribute("username", username);
-        model.addAttribute("types", TipConcediu.values());
+        model.addAttribute("types", RequestType.values());
         return "request_leave_page";
     }
 
     @PostMapping("/submit")
     public String submitLeaveRequest(
-            @RequestParam("tipConcediu") TipConcediu tipConcediu,
-            @RequestParam("dataInceput") @DateTimeFormat(pattern = "yyyy-MM-dd") Date dataInceput,
-            @RequestParam("dataSfarsit") @DateTimeFormat(pattern = "yyyy-MM-dd") Date dataSfarsit,
-            @RequestParam("comentarii") String comentarii,
+            @RequestParam("requestType") RequestType requestType,
+            @RequestParam("startDate") @DateTimeFormat(pattern = "yyyy-MM-dd") Date dataInceput,
+            @RequestParam("endDate") @DateTimeFormat(pattern = "yyyy-MM-dd") Date dataSfarsit,
+            @RequestParam("comments") String comentarii,
             @RequestParam("file") MultipartFile file,
             RedirectAttributes redirectAttributes) {
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
         String username = authentication.getName();
         User user = userRepository.findByUsername(username);
 
-        CerereConcediu cerere = new CerereConcediu();
-        cerere.setUser(user);
-        cerere.setTipConcediu(tipConcediu);
-        cerere.setDataInceput(dataInceput);
-        cerere.setDataSfarsit(dataSfarsit);
-        cerere.setComentarii(comentarii);
-        cerere.setStatus(StatusCerere.IN_ASTEPTARE);
+        LeaveRequest leaveRequest = new LeaveRequest();
+        leaveRequest.setUser(user);
+        leaveRequest.setTipConcediu(requestType);
+        leaveRequest.setDataInceput(dataInceput);
+        leaveRequest.setDataSfarsit(dataSfarsit);
+        leaveRequest.setComentarii(comentarii);
+        leaveRequest.setStatus(RequestStatus.WAITING);
 
         try {
-            service.validateLeaveRequest(user, tipConcediu, dataInceput, dataSfarsit, file);
+            service.validateLeaveRequest(user, requestType, dataInceput, dataSfarsit, file);
             if (!file.isEmpty()) {
-                cerere.setFisierAtasat(file.getBytes());
+                leaveRequest.setFisierAtasat(file.getBytes());
             }
-            service.submitLeaveRequest(cerere);
+            service.submitLeaveRequest(leaveRequest);
             redirectAttributes.addFlashAttribute("success", true);
         } catch (IOException e) {
-            redirectAttributes.addFlashAttribute("errorMessage", "Eroare la încărcarea fișierului!");
+            redirectAttributes.addFlashAttribute("errorMessage", "Fail to upload file");
         } catch (IllegalArgumentException e) {
             redirectAttributes.addFlashAttribute("errorMessage", e.getMessage());
         }
@@ -104,17 +102,17 @@ public class LeaveController {
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
         String username = authentication.getName();
         model.addAttribute("username", username);
-        List<CerereConcediu> pendingRequests = service.findPendingRequests();
+        List<LeaveRequest> pendingRequests = service.findPendingRequests();
         model.addAttribute("pendingRequests", pendingRequests);
-        return "aprobare_concedii_page";
+        return "aprove_request_leave_page";
     }
 
     @PostMapping("/update_status")
-    public String updateLeaveRequestStatus(@RequestParam("id") Long id, @RequestParam("status") StatusCerere status) {
+    public String updateLeaveRequestStatus(@RequestParam("id") Long id, @RequestParam("status") RequestStatus status) {
 
-        Optional<CerereConcediu> cerereOptional = service.findById(id);
+        Optional<LeaveRequest> cerereOptional = service.findById(id);
         if (cerereOptional.isPresent()) {
-            CerereConcediu cerere = cerereOptional.get();
+            LeaveRequest cerere = cerereOptional.get();
             cerere.setStatus(status);
             service.submitLeaveRequest(cerere);
         }
@@ -124,7 +122,7 @@ public class LeaveController {
     @GetMapping("/get_comments/{id}")
     public ResponseEntity<String> getComments(@PathVariable Long id) {
 
-        CerereConcediu cerere = service.findById(id).orElse(null);
+        LeaveRequest cerere = service.findById(id).orElse(null);
         if (cerere == null) {
             return ResponseEntity.notFound().build();
         }
@@ -134,7 +132,7 @@ public class LeaveController {
     @GetMapping("/get_file/{id}")
     public ResponseEntity<byte[]> getFile(@PathVariable Long id) {
 
-        CerereConcediu cerere = service.findById(id).orElse(null);
+        LeaveRequest cerere = service.findById(id).orElse(null);
         if (cerere == null || cerere.getFisierAtasat() == null) {
             return ResponseEntity.notFound().build();
         }
@@ -143,19 +141,19 @@ public class LeaveController {
                 .body(cerere.getFisierAtasat());
     }
 
-    @GetMapping("/cereri_concediu")
+    @GetMapping("/requests_leave")
     public String afiseazaCereriConcediu(Model model) {
         int pendingRequestsCount = service.countPendingRequests();
         model.addAttribute("pendingRequestsCount", pendingRequestsCount);
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
         String username = authentication.getName();
         model.addAttribute("username", username);
-        List<CerereConcediu> cereriConcediu = service.findByUserName(username);
+        List<LeaveRequest> cereriConcediu = service.findByUserName(username);
         model.addAttribute("cereriConcediu", cereriConcediu);
-        return "cereri_concediu";
+        return "requests_leave";
     }
 
-    @GetMapping("/verifica_concedii")
+    @GetMapping("/check_requests")
     public String showLeaveVerificationPage(Model model) {
         int pendingRequestsCount = service.countPendingRequests();
         model.addAttribute("pendingRequestsCount", pendingRequestsCount);
@@ -164,7 +162,7 @@ public class LeaveController {
         model.addAttribute("username", username);
         model.addAttribute("usernameforsearch", "");
         model.addAttribute("approvedLeaves", new ArrayList<>());
-        return "verifica_concedii";
+        return "check_requests";
     }
 
     @PostMapping("/search_leaves")
@@ -174,27 +172,27 @@ public class LeaveController {
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
         String usernamefornavbar = authentication.getName();
         model.addAttribute("username", usernamefornavbar);
-        List<CerereConcediu> approvedLeaves = service.findApprovedLeavesByUsername(username);
+        List<LeaveRequest> approvedLeaves = service.findApprovedLeavesByUsername(username);
         model.addAttribute("usernameforsearch", username);
         model.addAttribute("approvedLeaves", approvedLeaves);
-        return "verifica_concedii";
+        return "check_requests";
     }
 
     @PostMapping("/cancel_leave")
     public String cancelLeaveRequest(@RequestParam("id") Long id) {
-        Optional<CerereConcediu> cerereOptional = service.findById(id);
+        Optional<LeaveRequest> cerereOptional = service.findById(id);
         if (cerereOptional.isPresent()) {
-            CerereConcediu cerere = cerereOptional.get();
-            if (cerere.getStatus() == StatusCerere.IN_ASTEPTARE) {
+            LeaveRequest cerere = cerereOptional.get();
+            if (cerere.getStatus() == RequestStatus.WAITING) {
                 service.delete(cerere);
             }
         }
-        return "redirect:/cereri_concediu";
+        return "redirect:/requests_leave";
     }
 
     @GetMapping("/generate_report")
     public ResponseEntity<byte[]> generateReport(@RequestParam("username") String username) {
-        List<CerereConcediu> approvedLeaves = service.findApprovedLeavesByUsername(username);
+        List<LeaveRequest> approvedLeaves = service.findApprovedLeavesByUsername(username);
         ByteArrayOutputStream byteStream = new ByteArrayOutputStream();
 
         try (PdfWriter writer = new PdfWriter(byteStream);
@@ -207,7 +205,7 @@ public class LeaveController {
                     .setFont(PdfFontFactory.createFont(StandardFonts.TIMES_BOLD))
                     .setFontSize(14));
 
-            for (CerereConcediu leave : approvedLeaves) {
+            for (LeaveRequest leave : approvedLeaves) {
                 String period = sdf.format(leave.getDataInceput()) + " - " + sdf.format(leave.getDataSfarsit());
                 document.add(new Paragraph(period + ": " + leave.getTipConcediu().name() +
                         (leave.getComentarii() != null ? " - Comments: " + leave.getComentarii() : "")));

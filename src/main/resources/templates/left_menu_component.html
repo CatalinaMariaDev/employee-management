@@ -55,12 +55,12 @@
     </style>
 
     <div class="left-menu">
-        <a href="/request_leave" class="menu-item">Cerere concediu</a>
+        <a href="/request_leave" class="menu-item">Leave request</a>
         <a href="/approve_leaves" sec:authorize="hasRole('ROLE_MANAGER')" class="menu-item">
-            Aprobare concedii
+            Approve requests
             <span th:if="${pendingRequestsCount > 0}" th:text="${pendingRequestsCount}" class="badge" style="background-color: #ff5733;"></span>
         </a>
-        <a href="/cereri_concediu" class="menu-item">Verifica starea</a>
-        <a href="/verifica_concedii" class="menu-item">Verifica concedii</a>
+        <a href="/requests_leave" class="menu-item">Verify state</a>
+        <a href="/check_requests" class="menu-item">Verify leaves</a>
     </div>
 </div>
