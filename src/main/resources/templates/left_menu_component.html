@@ -60,7 +60,7 @@
             Approve requests
             <span th:if="${pendingRequestsCount > 0}" th:text="${pendingRequestsCount}" class="badge" style="background-color: #ff5733;"></span>
         </a>
-        <a href="/requests_leave" class="menu-item">Verify state</a>
+        <a href="/requests_leave" class="menu-item" sec:authorize="hasRole('ROLE_LUCRATOR')">Verify state</a>
         <a href="/check_requests" class="menu-item">Verify leaves</a>
     </div>
 </div>
