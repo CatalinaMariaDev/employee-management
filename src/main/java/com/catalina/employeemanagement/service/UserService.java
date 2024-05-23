@@ -9,6 +9,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
+import java.util.List;
 
 @Service
 public class UserService {
@@ -23,7 +24,6 @@ public class UserService {
         user.setRole(Role.MANAGER);
         user.setUsername("admin");
         user.setPassword("abc");
-        //userRepository.save(user);
     }
 
     public void register(User user) {
@@ -34,5 +34,9 @@ public class UserService {
         }
         user.setPassword(user.getPassword());
         userRepository.save(user);
+    }
+
+    public List<User> findAllUsers() {
+        return userRepository.findAll();
     }
 }

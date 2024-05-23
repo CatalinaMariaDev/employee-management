@@ -61,9 +61,9 @@ public class LeaveController {
     @PostMapping("/submit")
     public String submitLeaveRequest(
             @RequestParam("requestType") RequestType requestType,
-            @RequestParam("startDate") @DateTimeFormat(pattern = "yyyy-MM-dd") Date dataInceput,
-            @RequestParam("endDate") @DateTimeFormat(pattern = "yyyy-MM-dd") Date dataSfarsit,
-            @RequestParam("comments") String comentarii,
+            @RequestParam("startDate") @DateTimeFormat(pattern = "yyyy-MM-dd") Date startDate,
+            @RequestParam("endDate") @DateTimeFormat(pattern = "yyyy-MM-dd") Date endDate,
+            @RequestParam("comments") String comments,
             @RequestParam("file") MultipartFile file,
             RedirectAttributes redirectAttributes) {
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
@@ -72,14 +72,14 @@ public class LeaveController {
 
         LeaveRequest leaveRequest = new LeaveRequest();
         leaveRequest.setUser(user);
-        leaveRequest.setTipConcediu(requestType);
-        leaveRequest.setDataInceput(dataInceput);
-        leaveRequest.setDataSfarsit(dataSfarsit);
-        leaveRequest.setComentarii(comentarii);
+        leaveRequest.setRequestType(requestType);
+        leaveRequest.setStartDate(startDate);
+        leaveRequest.setEndDate(endDate);
+        leaveRequest.setComments(comments);
         leaveRequest.setStatus(RequestStatus.WAITING);
 
         try {
-            service.validateLeaveRequest(user, requestType, dataInceput, dataSfarsit, file);
+            service.validateLeaveRequest(user, requestType, startDate, endDate, file);
             if (!file.isEmpty()) {
                 leaveRequest.setFisierAtasat(file.getBytes());
             }
@@ -126,7 +126,7 @@ public class LeaveController {
         if (cerere == null) {
             return ResponseEntity.notFound().build();
         }
-        return ResponseEntity.ok(cerere.getComentarii());
+        return ResponseEntity.ok(cerere.getComments());
     }
 
     @GetMapping("/get_file/{id}")
@@ -142,14 +142,14 @@ public class LeaveController {
     }
 
     @GetMapping("/requests_leave")
-    public String afiseazaCereriConcediu(Model model) {
+    public String displayRequestsLeave(Model model) {
         int pendingRequestsCount = service.countPendingRequests();
         model.addAttribute("pendingRequestsCount", pendingRequestsCount);
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
         String username = authentication.getName();
         model.addAttribute("username", username);
-        List<LeaveRequest> cereriConcediu = service.findByUserName(username);
-        model.addAttribute("cereriConcediu", cereriConcediu);
+        List<LeaveRequest> leaveRequests = service.findByUserName(username);
+        model.addAttribute("leaveRequests", leaveRequests);
         return "requests_leave";
     }
 
@@ -166,14 +166,14 @@ public class LeaveController {
     }
 
     @PostMapping("/search_leaves")
-    public String searchLeaves(@RequestParam("username") String username, Model model) {
+    public String searchLeaves(@RequestParam("email") String email, Model model) {
         int pendingRequestsCount = service.countPendingRequests();
         model.addAttribute("pendingRequestsCount", pendingRequestsCount);
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
-        String usernamefornavbar = authentication.getName();
-        model.addAttribute("username", usernamefornavbar);
-        List<LeaveRequest> approvedLeaves = service.findApprovedLeavesByUsername(username);
-        model.addAttribute("usernameforsearch", username);
+        String emailfornavbar = authentication.getName();
+        model.addAttribute("username", emailfornavbar);
+        List<LeaveRequest> approvedLeaves = service.findApprovedLeavesByEmail(email);
+        model.addAttribute("emailforsearch", email);
         model.addAttribute("approvedLeaves", approvedLeaves);
         return "check_requests";
     }
@@ -191,8 +191,9 @@ public class LeaveController {
     }
 
     @GetMapping("/generate_report")
-    public ResponseEntity<byte[]> generateReport(@RequestParam("username") String username) {
-        List<LeaveRequest> approvedLeaves = service.findApprovedLeavesByUsername(username);
+    public ResponseEntity<byte[]> generateReport(@RequestParam("email") String email) {
+        User user = userRepository.findByEmail(email);
+        List<LeaveRequest> approvedLeaves = service.findApprovedLeavesByEmail(email);
         ByteArrayOutputStream byteStream = new ByteArrayOutputStream();
 
         try (PdfWriter writer = new PdfWriter(byteStream);
@@ -201,14 +202,14 @@ public class LeaveController {
 
             document.setTextAlignment(TextAlignment.LEFT);
             SimpleDateFormat sdf = new SimpleDateFormat("dd.MM.yyyy");
-            document.add(new Paragraph("Leave Report for " + username)
+            document.add(new Paragraph("Leave Report for " + user.getUsername())
                     .setFont(PdfFontFactory.createFont(StandardFonts.TIMES_BOLD))
                     .setFontSize(14));
 
             for (LeaveRequest leave : approvedLeaves) {
-                String period = sdf.format(leave.getDataInceput()) + " - " + sdf.format(leave.getDataSfarsit());
-                document.add(new Paragraph(period + ": " + leave.getTipConcediu().name() +
-                        (leave.getComentarii() != null ? " - Comments: " + leave.getComentarii() : "")));
+                String period = sdf.format(leave.getStartDate()) + " - " + sdf.format(leave.getEndDate());
+                document.add(new Paragraph(period + ": " + leave.getRequestType().name() +
+                        (leave.getComments() != null ? " - Comments: " + leave.getComments() : "")));
             }
             document.close();
         } catch (Exception e) {

@@ -64,6 +64,13 @@ public class LeaveRequestService {
                 .collect(Collectors.toList());
     }
 
+    public List<LeaveRequest> findApprovedLeavesByEmail(String email) {
+        List<LeaveRequest> userLeaves = repository.findByUserEmail(email);
+        return userLeaves.stream()
+                .filter(cerere -> cerere != null && cerere.getStatus() == RequestStatus.APPROVED)
+                .collect(Collectors.toList());
+    }
+
     public void delete(LeaveRequest leaveRequest) {
         repository.delete(leaveRequest);
     }
@@ -73,7 +80,7 @@ public class LeaveRequestService {
         return repository.findByUserUsername(user.getUsername())
                 .stream()
                 .filter(cerere -> cerere.getStatus() != RequestStatus.REJECTED &&
-                        (startDate.before(cerere.getDataSfarsit()) && endDate.after(cerere.getDataInceput())))
+                        (startDate.before(cerere.getEndDate()) && endDate.after(cerere.getStartDate())))
                 .collect(Collectors.toList());
     }
 
@@ -81,32 +88,32 @@ public class LeaveRequestService {
         //AICI SE VALIDEAZA NUMARUL TOTAL DE ZILE PLATITE DE CONCEDIU CARE ESTE DEVINIT CA CONSTANTA IN PROPRIETATI
         return repository.findByUserUsername(user.getUsername())
                 .stream()
-                .filter(cerere -> cerere.getTipConcediu() == RequestType.PAID_DAYS &&
+                .filter(cerere -> cerere.getRequestType() == RequestType.PAID_DAYS &&
                         cerere.getStatus() == RequestStatus.APPROVED)
-                .mapToInt(cerere -> (int) ((cerere.getDataSfarsit().getTime() - cerere.getDataInceput().getTime()) / (1000 * 60 * 60 * 24)) + 1)
+                .mapToInt(cerere -> (int) ((cerere.getEndDate().getTime() - cerere.getStartDate().getTime()) / (1000 * 60 * 60 * 24)) + 1)
                 .sum();
     }
 
-    public boolean validateLeaveRequest(User user, RequestType tipConcediu, Date dataInceput, Date dataSfarsit, MultipartFile file) {
+    public boolean validateLeaveRequest(User user, RequestType leaveRequest, Date startDate, Date endDate, MultipartFile file) {
         //AICI AU LOC TOATE VALIDATILE CARE DUPA SA FIE AFISATE CA MESAJ USER-lui
-        if (dataInceput.after(dataSfarsit)) {
-            throw new IllegalArgumentException("Data de început nu poate fi mai mare decât data de sfârșit!");
+        if (startDate.after(endDate)) {
+            throw new IllegalArgumentException("Start date can't be bigger that end date!");
         }
 
-        if (!findOverlappingRequests(user, dataInceput, dataSfarsit).isEmpty()) {
-            throw new IllegalArgumentException("Există deja o cerere de concediu în acea perioadă!");
+        if (!findOverlappingRequests(user, startDate, endDate).isEmpty()) {
+            throw new IllegalArgumentException("Already exists a request leave for that period!");
         }
 
-        if (tipConcediu == RequestType.PAID_DAYS) {
+        if (leaveRequest == RequestType.PAID_DAYS) {
             int daysTaken = calculateTotalPaidLeaveDays(user);
-            int requestedDays = (int) ((dataSfarsit.getTime() - dataInceput.getTime()) / (1000 * 60 * 60 * 24)) + 1;
+            int requestedDays = (int) ((endDate.getTime() - startDate.getTime()) / (1000 * 60 * 60 * 24)) + 1;
             if (daysTaken + requestedDays > maxPaidLeaveDays) {
-                throw new IllegalArgumentException("Numărul maxim de zile de concediu plătit este " + maxPaidLeaveDays + "!");
+                throw new IllegalArgumentException("The maximum number of paid days is:" + maxPaidLeaveDays + "!");
             }
         }
 
-        if (tipConcediu == RequestType.MEDICAL_LEAVE && file.isEmpty()) {
-            throw new IllegalArgumentException("Trebuie să atașați un fișier pentru concediu medical!");
+        if (leaveRequest == RequestType.MEDICAL_LEAVE && file.isEmpty()) {
+            throw new IllegalArgumentException("You need to attach a file for medical leave!");
         }
 
         return true;

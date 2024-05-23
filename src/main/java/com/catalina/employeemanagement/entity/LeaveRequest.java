@@ -20,25 +20,25 @@ public class LeaveRequest {
     @JoinColumn(name = "user_id", nullable = false)
     private User user;
 
-    @Column(name = "data_inceput", nullable = false)
-    private Date dataInceput;
+    @Column(name = "start_date", nullable = false)
+    private Date startDate;
 
-    @Column(name = "data_sfarsit", nullable = false)
-    private Date dataSfarsit;
+    @Column(name = "end_date", nullable = false)
+    private Date endDate;
 
     @Enumerated(EnumType.STRING)
     @Column(nullable = false)
     private RequestStatus status;
 
     @Enumerated(EnumType.STRING)
-    @Column(name = "tip_concediu", nullable = false)
-    private RequestType tipConcediu;
+    @Column(name = "request_type", nullable = false)
+    private RequestType requestType;
 
-    @Column(name = "comentarii")
-    private String comentarii;
+    @Column(name = "comments")
+    private String comments;
 
     @Lob
-    @Column(name = "fisier_atașat")
+    @Column(name = "attached_file")
     private byte[] fisierAtasat;
 
 }

@@ -144,13 +144,12 @@
     document.addEventListener('DOMContentLoaded', function () {
         // Code for file drag-and-drop
         var dropZone = document.getElementById('fileDropZone');
-        var tipConcediu = document.getElementById('tipConcediu');
+        var requestType = document.getElementById('requestType');
 
         function handleFileDrop(event) {
             event.preventDefault();
             var file = event.dataTransfer.files[0];
-            dropZone.innerText = 'Fișier selectat: ' + file.name;
-            console.log('Fișierul tras și plasat:', file);
+            dropZone.innerText = 'Attached file: ' + file.name;
         }
 
         dropZone.addEventListener('dragover', function (event) {
@@ -159,8 +158,8 @@
 
         dropZone.addEventListener('drop', handleFileDrop);
 
-        tipConcediu.addEventListener('change', function () {
-            if (tipConcediu.value === 'concediu_medical') {
+        requestType.addEventListener('change', function () {
+            if (requestType.value === 'medical_leave') {
                 dropZone.style.display = 'block';
             } else {
                 dropZone.style.display = 'none';

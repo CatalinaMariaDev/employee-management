@@ -109,23 +109,23 @@
 <div th:replace="left_menu_component :: leftMenu" class="left-menu"></div>
 <div class="container-custom container">
     <h1>Your leave requests</h1>
-    <div th:each="cerere : ${cereriConcediu}">
+    <div th:each="request : ${leaveRequests}">
         <div class="cerere-concediu"
-             th:classappend="${cerere.status.toString().toLowerCase()}">
-            <p><strong>Cerere #<span th:text="${cerere.id}"></span></strong></p>
-            <p>Start date: <span th:text="${#dates.format(cerere.dataInceput, 'dd-MM-yyyy')}"></span></p>
-            <p>End date: <span th:text="${#dates.format(cerere.dataSfarsit, 'dd-MM-yyyy')}"></span></p>
-            <p>Status: <span th:text="${cerere.status}"></span></p>
-            <p>Type: <span th:text="${cerere.tipConcediu}"></span></p>
-            <p>Comments: <span th:text="${cerere.comentarii}"></span></p>
-            <div th:if="${cerere.tipConcediu == 'concediu_medical'}">
-                <img th:src="@{'data:image/png;base64,' + ${#strings.toString(cerere.fisierAtasat)}}"
+             th:classappend="${request.status.toString().toLowerCase()}">
+            <p><strong>Request #<span th:text="${request.id}"></span></strong></p>
+            <p>Start date: <span th:text="${#dates.format(request.startDate, 'dd-MM-yyyy')}"></span></p>
+            <p>End date: <span th:text="${#dates.format(request.endDate, 'dd-MM-yyyy')}"></span></p>
+            <p>Status: <span th:text="${request.status}"></span></p>
+            <p>Type: <span th:text="${request.requestType}"></span></p>
+            <p>Comments: <span th:text="${request.comments}"></span></p>
+            <div th:if="${request.requestType == 'medical_leave'}">
+                <img th:src="@{'data:image/png;base64,' + ${#strings.toString(request.attachedFile)}}"
                      alt="Attached file">
             </div>
-            <div th:if="${cerere.status.name() == 'IN_ASTEPTARE'}">
-                <form method="post" action="/cancel_leave" th:action="@{/cancel_leave}" th:object="${cerere}">
+            <div th:if="${request.status.name() == 'WAITING'}">
+                <form method="post" action="/cancel_leave" th:action="@{/cancel_leave}" th:object="${request}">
                     <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}" />
-                    <input type="hidden" name="id" th:value="${cerere.id}">
+                    <input type="hidden" name="id" th:value="${request.id}">
                     <button type="submit">Cancel request</button>
                 </form>
             </div>
@@ -133,7 +133,7 @@
 
         </div>
     </div>
-    <div th:if="${cereriConcediu.isEmpty()}" class="empty-message">
+    <div th:if="${leaveRequests.isEmpty()}" class="empty-message">
         <p>You don't have requests.</p>
     </div>
 </div>
