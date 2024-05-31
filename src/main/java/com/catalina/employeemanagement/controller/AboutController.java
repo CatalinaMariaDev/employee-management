@@ -19,6 +19,7 @@ public class AboutController {
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
         String username = authentication.getName();
         model.addAttribute("username", username);
+        System.out.println("test");
         return "about_page";
     }
 
