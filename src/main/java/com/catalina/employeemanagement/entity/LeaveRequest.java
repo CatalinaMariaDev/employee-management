@@ -39,6 +39,6 @@ public class LeaveRequest {
 
     @Lob
     @Column(name = "attached_file")
-    private byte[] fisierAtasat;
+    private byte[] attachedFile;
 
 }

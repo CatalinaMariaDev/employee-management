@@ -34,7 +34,7 @@ enum StatusCerere {
 }
 
 enum Role {
-    LUCRATOR
+    EMPLOYEE
     MANAGER
 }
 

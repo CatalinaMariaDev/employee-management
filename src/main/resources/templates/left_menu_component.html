@@ -55,12 +55,12 @@
     </style>
 
     <div class="left-menu">
-        <a href="/request_leave" sec:authorize="hasRole('ROLE_LUCRATOR')" class="menu-item">Leave request</a>
+        <a href="/request_leave" sec:authorize="hasRole('ROLE_EMPLOYEE')" class="menu-item">Leave request</a>
         <a href="/approve_leaves" sec:authorize="hasRole('ROLE_MANAGER')" class="menu-item">
             Approve requests
             <span th:if="${pendingRequestsCount > 0}" th:text="${pendingRequestsCount}" class="badge" style="background-color: #ff5733;"></span>
         </a>
-        <a href="/requests_leave" class="menu-item" sec:authorize="hasRole('ROLE_LUCRATOR')">Verify state</a>
+        <a href="/requests_leave" class="menu-item" sec:authorize="hasRole('ROLE_EMPLOYEE')">Verify state</a>
         <a href="/check_requests" class="menu-item">Verify leaves</a>
         <a href="/view_users" class="menu-item">Users</a>
     </div>

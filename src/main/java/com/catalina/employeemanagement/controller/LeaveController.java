@@ -81,7 +81,7 @@ public class LeaveController {
         try {
             service.validateLeaveRequest(user, requestType, startDate, endDate, file);
             if (!file.isEmpty()) {
-                leaveRequest.setFisierAtasat(file.getBytes());
+                leaveRequest.setAttachedFile(file.getBytes());
             }
             service.submitLeaveRequest(leaveRequest);
             redirectAttributes.addFlashAttribute("success", true);
@@ -133,12 +133,12 @@ public class LeaveController {
     public ResponseEntity<byte[]> getFile(@PathVariable Long id) {
 
         LeaveRequest cerere = service.findById(id).orElse(null);
-        if (cerere == null || cerere.getFisierAtasat() == null) {
+        if (cerere == null || cerere.getAttachedFile() == null) {
             return ResponseEntity.notFound().build();
         }
         return ResponseEntity.ok()
                 .contentType(MediaType.IMAGE_JPEG)
-                .body(cerere.getFisierAtasat());
+                .body(cerere.getAttachedFile());
     }
 
     @GetMapping("/requests_leave")

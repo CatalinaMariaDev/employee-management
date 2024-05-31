@@ -15,16 +15,23 @@
                 </div>
                 <div class="card-body">
                     <form th:action="@{/registration}" method="post" th:object="${user}">
-                        <input name="username" type="text" placeholder="Username">
-                        <br>
-                        <input name="email" type="text" placeholder="email">
-                        <br>
-                        <input name="password" type="password" placeholder="Password">
-                        <br>
-                        <input type="submit" value="Register">
+                        <div class="mb-3">
+                            <input name="username" type="text" class="form-control" placeholder="Username" th:field="*{username}">
+                        </div>
+                        <div class="mb-3">
+                            <input name="email" type="text" class="form-control" placeholder="Email" th:field="*{email}">
+                        </div>
+                        <div class="mb-3">
+                            <input name="password" type="password" class="form-control" placeholder="Password" th:field="*{password}">
+                        </div>
+                        <div class="d-grid">
+                            <input type="submit" class="btn btn-primary" value="Register">
+                        </div>
                     </form>
                 </div>
                 <div class="card-footer text-center">
+                    <p th:if="${message}" class="text-success" th:text="${message}"></p>
+                    <p th:if="${error}" class="text-danger" th:text="${error}"></p>
                     <p>Already have an account? <a href="/login">Login here</a>.</p>
                 </div>
             </div>

@@ -4,6 +4,6 @@ public enum RequestType {
     PAID_DAYS,
     FREE_DAYS,
     MEDICAL_LEAVE,
-    PATERNAL_LEAVE
+    MATERNITY_LEAVE
 }
 
